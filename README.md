@@ -2,17 +2,17 @@
 
 ## About The Project
 
-**Arduino Math Quiz** adalah permainan kuis matematika sederhana berbasis Arduino. Pemain akan mendapatkan soal penjumlahan atau pengurangan secara acak, kemudian memasukkan jawaban menggunakan **IR Sensor**.
+**Arduino Math Quiz** is a simple mathematics quiz game built with Arduino. The player receives random addition or subtraction questions and enters the answer using an **IR Sensor**.
 
-Jawaban ditampilkan pada **7-Segment Display**, sedangkan **Buzzer** digunakan sebagai feedback ketika pemain memasukkan, menghapus, atau mengirim jawaban.
+The answer is displayed on a **4-Digit 7-Segment Display**, while the **Buzzer** provides feedback when the player interacts with the game.
 
-Game terdiri dari **5 soal**. Pemain membutuhkan minimal **3 jawaban benar** untuk mendapatkan hasil menang.
+The game consists of **5 questions**, and the player needs at least **3 correct answers** to win.
 
 ## Hardware
 
-Project ini menggunakan **MFS (Multi-Function Shield)** yang memiliki beberapa komponen seperti Push Button, Buzzer, 7-Segment Display, dan LED.
+This project uses an **MFS (Multi-Function Shield)**, which includes Push Buttons, a Buzzer, a 4-Digit 7-Segment Display, and LEDs.
 
-Pada project ini, komponen MFS yang digunakan adalah:
+Only the following MFS components are used:
 
 * Push Button 1
 * Push Button 2
@@ -20,28 +20,28 @@ Pada project ini, komponen MFS yang digunakan adalah:
 * Buzzer
 * 4-Digit 7-Segment Display
 
-LED pada MFS tidak digunakan.
+The LEDs on the MFS are not used.
 
-Selain MFS, project ini menggunakan **IR Sensor** sebagai input untuk menambahkan jawaban.
+An external **IR Sensor** is also used as the input for entering answers.
 
 ## Pin Configuration
 
-| Component | Arduino Pin |
-| --------- | ----------- |
-| Button 1  | A1          |
-| Button 2  | A2          |
-| Button 3  | A3          |
-| Buzzer    | D3          |
-| MFS Latch | D4          |
-| IR Sensor | D5          |
-| MFS Clock | D7          |
-| MFS Data  | D8          |
+| Component     | Arduino Pin |
+| ------------- | ----------- |
+| Button 1      | A1          |
+| Button 2      | A2          |
+| Button 3      | A3          |
+| Buzzer        | D3          |
+| MFS Latch     | D4          |
+| IR Sensor OUT | D5          |
+| MFS Clock     | D7          |
+| MFS Data      | D8          |
 
-Konfigurasi tersebut digunakan langsung dalam program Arduino.
+The pin configuration is defined directly in the Arduino program.
 
-### MFS 7-Segment
+### MFS 7-Segment Connection
 
-7-Segment pada MFS dikontrol menggunakan shift register melalui tiga pin:
+The 4-Digit 7-Segment Display on the MFS is controlled using a shift register through three pins:
 
 ```text
 Arduino D4 → LATCH
@@ -49,90 +49,90 @@ Arduino D7 → CLOCK
 Arduino D8 → DATA
 ```
 
-Program menggunakan `TimerOne` untuk melakukan multiplexing pada 7-Segment sehingga setiap digit dapat ditampilkan secara bergantian.
+The program uses `TimerOne` for 7-Segment multiplexing to display the digits smoothly.
 
-### IR Sensor
+### IR Sensor Connection
 
-IR Sensor digunakan untuk memasukkan jawaban.
+The external IR Sensor is connected to:
 
 ```text
 IR Sensor OUT → Arduino D5
 ```
 
-Setiap kali sensor mendeteksi objek, jawaban pemain akan bertambah satu.
+Whenever the sensor detects an object, the player's answer increases by 1.
 
-Untuk mencegah satu deteksi terbaca lebih dari sekali, program menggunakan debounce selama **300 ms** dan sensor harus kembali ke kondisi awal sebelum dapat mendeteksi input berikutnya.
+The program also uses a **300 ms debounce** and requires the sensor to return to its initial state before another detection can be counted. This prevents a single detection from being counted multiple times.
 
 ## How The Game Works
 
-1. Tekan dan tahan **Button 1 selama 2 detik** untuk menyalakan game.
-2. Soal matematika akan muncul pada 7-Segment.
-3. Tekan **Button 1** untuk mulai menjawab.
-4. Gunakan **IR Sensor** untuk menambahkan angka jawaban.
-5. **Button 3** digunakan untuk mengurangi jawaban.
+1. Press and hold **Button 1 for 2 seconds** to start the game.
+2. A random mathematics question will be displayed.
+3. Press **Button 1** to start answering.
+4. Use the **IR Sensor** to increase the answer by 1.
+5. Use **Button 3** to decrease the answer.
 
-   * Tekan sebentar → jawaban berkurang 1.
-   * Tahan 2 detik → jawaban dihapus menjadi 0.
-6. Tekan **Button 2** untuk mengirim jawaban.
-7. Jika jawaban benar, Buzzer memainkan suara keberhasilan.
-8. Jika jawaban salah, Buzzer memainkan suara kesalahan.
-9. Tekan **Button 2** untuk lanjut ke soal berikutnya.
-10. Setelah 5 soal selesai, sistem akan menampilkan hasil akhir.
-11. Tahan **Button 1 selama 2 detik** untuk keluar dari game.
+   * Short press → decrease the answer by 1.
+   * Hold for 2 seconds → reset the answer to 0.
+6. Press **Button 2** to submit the answer.
+7. If the answer is correct, the Buzzer plays a success sound.
+8. If the answer is incorrect, the Buzzer plays an error sound.
+9. Press **Button 2** to continue to the next question.
+10. After 5 questions, the final result is displayed.
+11. Press and hold **Button 1 for 2 seconds** to exit the game.
 
 ## Scoring
 
-Game memiliki 5 soal dengan minimal 3 jawaban benar untuk menang.
+The game contains 5 questions, with a minimum of 3 correct answers required to win.
 
 ```cpp
 const int JUMLAH_SOAL = 5;
 const int SKOR_MENANG = 3;
 ```
 
-Soal terdiri dari operasi **penjumlahan dan pengurangan** yang dibuat secara acak ketika game dimulai.
+The questions are randomly generated using addition or subtraction.
 
 ## Display & Buzzer
 
-7-Segment digunakan untuk menampilkan:
+The 7-Segment Display is used to show:
 
-* Soal matematika
-* Jawaban pemain
-* `GOOD` untuk jawaban benar
-* `ERR` untuk jawaban salah
-* `YAY` untuk hasil menang
-* `LOSE` untuk hasil kalah
+* Mathematics questions
+* Player's answer
+* `GOOD` for a correct answer
+* `ERR` for an incorrect answer
+* `YAY` for winning
+* `LOSE` for losing
 
-Buzzer memberikan feedback pada beberapa kondisi seperti ketika jawaban bertambah, jawaban dihapus, jawaban benar, jawaban salah, dan game selesai.
+The Buzzer provides feedback for actions such as increasing the answer, clearing the answer, submitting a correct or incorrect answer, and finishing the game.
 
 ## Software
 
-Project dibuat menggunakan **Arduino IDE** dan membutuhkan library:
+This project was developed using **Arduino IDE** and requires the following library:
 
 ```cpp
 #include <TimerOne.h>
 ```
 
-Library `TimerOne` digunakan untuk menjalankan proses multiplexing 7-Segment.
+The `TimerOne` library is used to control the 7-Segment multiplexing.
 
 ## How To Run
 
 1. Install Arduino IDE.
-2. Install library **TimerOne**.
-3. Hubungkan MFS ke Arduino.
-4. Hubungkan IR Sensor ke pin D5.
-5. Pastikan koneksi pin sesuai dengan konfigurasi di atas.
-6. Upload program ke Arduino.
-7. Tekan dan tahan Button 1 selama 2 detik untuk memulai game.
+2. Install the **TimerOne** library.
+3. Connect the MFS to the Arduino.
+4. Connect the IR Sensor OUT to **D5**.
+5. Make sure all connections match the pin configuration above.
+6. Upload the program to the Arduino.
+7. Press and hold **Button 1 for 2 seconds** to start the game.
 
-## Project Features
+## Features
 
 * Random addition and subtraction questions
-* IR Sensor sebagai input jawaban
-* 3 Push Buttons sebagai kontrol game
+* IR Sensor as answer input
+* Three Push Buttons for game control
 * 4-Digit 7-Segment Display
 * Buzzer feedback
 * 5-question quiz
 * Score system
 * Minimum 3 correct answers to win
 * IR Sensor debounce
-* 7-Segment multiplexing
+* Smooth 7-Segment multiplexing
